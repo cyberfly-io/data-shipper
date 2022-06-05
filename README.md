@@ -52,5 +52,5 @@ def do_something(data):
 while 1:
     client.update_data("temperature", 35)
     client.send_data()
-    time.sleep(5)
+    time.sleep(5) # time interval
 ```

@@ -1,2 +1,3 @@
 requests
 pypact-lang
+paho-mqtt

@@ -18,12 +18,12 @@ class CyberflyDataShipper:
         self.api_host = config.api_host
         self.device_data = {}
         self.device_id = device_id
-
+        self.caller = default_caller
         self.mqtt_client = mqttc
         self.topic = device_id
         self.mqtt_client.user_data_set(self)
         self.mqtt_client.on_connect = on_connect
-        self.mqtt_client.on_message = on_message
+        self.mqtt_client.on_message = on_received
         self.run(config.mqtt_broker, config.mqtt_port)
 
     def update_data(self, key: str, value):
@@ -67,21 +67,20 @@ class CyberflyDataShipper:
         self.mqtt_client.loop_start()
 
 
-def on_connect(client: mqtt.Client, mqtt_api: CyberflyDataShipper, __flags, received_code: int) -> None:
+def on_connect(client: mqtt.Client, mqtt_class: CyberflyDataShipper, __flags, received_code: int) -> None:
     print("Connected with result code " + str(received_code))
-    client.subscribe(mqtt_api.topic)
+    client.subscribe(mqtt_class.topic)
 
 
-def on_message(__client: mqtt.Client, mqtt_api: CyberflyDataShipper, msg: mqtt.MQTTMessage) -> None:
+def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqtt.MQTTMessage) -> None:
     json_string = msg.payload.decode("utf-8")
     try:
         json_data = json.loads(json_string)
-        mqtt_api.caller(json_data)
+        mqtt_class.caller(json_data)
     except Exception as e:
         print(e)
         print("invalid json payload received")
 
 
-
-
-
+def default_caller(data):
+    pass
