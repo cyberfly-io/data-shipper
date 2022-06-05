@@ -78,6 +78,7 @@ def on_message(__client: mqtt.Client, mqtt_api: CyberflyDataShipper, msg: mqtt.M
         json_data = json.loads(json_string)
         mqtt_api.caller(json_data)
     except Exception as e:
+        print(e)
         print("invalid json payload received")
 
 
