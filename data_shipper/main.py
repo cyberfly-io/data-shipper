@@ -13,11 +13,13 @@ mqttc = mqtt.Client(clean_session=True)
 
 
 class CyberflyDataShipper:
-    def __init__(self, device_id: str, key_pair: dict):
+    def __init__(self, device_id: str, key_pair: dict, network_id: str = "mainnet01"):
         self.key_pair = key_pair
+        self.network_id = network_id
         self.api_host = config.api_host
         self.device_data = {}
         self.device_id = device_id
+        self.account = "k:" + self.key_pair.get("publicKey")
         self.caller = default_caller
         self.mqtt_client = mqttc
         self.topic = device_id
@@ -31,21 +33,21 @@ class CyberflyDataShipper:
 
     def send_data(self):
         pact = Pact()
+        self.device_data.update({"timestamp": time.time().__round__()})
         hsh = utils.get_data_hash(self.device_data)
-        code = pact.lang.mk_exp(module_and_function="raspberrypi-xyzn6.new_device_data", namespace="free", id=hsh,
-                                data="(read-msg 'deviceData)", device_id=self.device_id, keyset="(read-keyset 'ks)")
+        code = pact.lang.mk_exp(module_and_function="sensor_store1.new-device-data", namespace="free", id=hsh,
+                                data="(read-msg 'deviceData)", device_id=self.device_id)
         data = {
             "ks": {"pred": "keys-all", "keys": [self.key_pair['publicKey']]},
             "deviceData": json.dumps(self.device_data)
         }
 
         kp = self.key_pair
-        kp.update({"clist": [{"name": 'cyberfly.cyberfly-gas-station.GAS_PAYER', "args": ["free-gas", {"int": 1}, 1]}]})
         cmd = {
             "pactCode": code,
             "envData": data,
-            "meta": utils.default_meta(),
-            "networkId": "mainnet01",
+            "meta": utils.default_meta(self.account),
+            "networkId": self.network_id,
             "nonce": time.time().__round__()-15,
             "keyPairs": [kp]
         }
