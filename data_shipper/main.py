@@ -31,7 +31,7 @@ class CyberflyDataShipper:
     def update_data(self, key: str, value):
         self.device_data.update({key: value})
 
-    def send_data(self):
+    def send_data(self, store_data=False):
         pact = Pact()
         self.device_data.update({"timestamp": time.time().__round__()})
         hsh = utils.get_data_hash(self.device_data)
@@ -53,8 +53,12 @@ class CyberflyDataShipper:
         }
         signed_message = pact.fetch.make_prepare_cmd(cmd)
         final_cmd = pact.api.mk_public_send(signed_message)
-        res = requests.post(config.api_host, json=final_cmd)
-        return pypact.utils.parse_res(res)
+        final_cmd.update({"store_data": store_data, "device_id": self.device_id})
+        try:
+            res = requests.post(config.api_host, json=final_cmd)
+            return pypact.utils.parse_res(res)
+        except Exception as e:
+            print(e.__str__())
 
     def on_message(self) -> Callable:
         def decorator(callback_function):
@@ -78,10 +82,12 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
     json_string = msg.payload.decode("utf-8")
     try:
         json_data = json.loads(json_string)
+    except:
+        print("invalid json payload received")
+    try:
         mqtt_class.caller(json_data)
     except Exception as e:
-        print(e)
-        print("invalid json payload received")
+        print(e.__str__())
 
 
 def default_caller(data):
