@@ -5,10 +5,10 @@ key_pair = {"publicKey": "d04bbd8f403e583248aa461896bd7518113f89b85c98f3d9596bbf
             "secretKey": "a0ec3175c6c80e60bc8ef18bd7b73a631c507b9f0a42c973036c7f96d21b047a"}
 
 pact = Pact()
-code = pact.lang.mk_exp(module_and_function="sensor_store1.new-device", namespace="free", id="test1",
-                        name="test1 device", ks="(read-keyset 'ks)")
+code = pact.lang.mk_exp(module_and_function="sensor_store6.new-device", namespace="free", device_id="test12345",
+                        name="test12345 device", status="active", ks="(read-keyset 'ks)")
 data = {
-    "ks": {"pred": "keys-all", "keys": [key_pair['publicKey']]},
+    "ks": {"pred": "keys-any", "keys": [key_pair['publicKey'], 'f03fb771f7727797291d877e5085803c84e72d06563a6dc704453dde404fca79']},
 }
 
 cmd = {

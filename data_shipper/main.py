@@ -7,7 +7,7 @@ from pypact.pact import Pact
 from typing import Callable
 import paho.mqtt.client as mqtt
 
-from data_shipper import config, utils
+from data_shipper import config, utils, auth
 
 mqttc = mqtt.Client(clean_session=True)
 
@@ -35,7 +35,7 @@ class CyberflyDataShipper:
         pact = Pact()
         self.device_data.update({"timestamp": time.time().__round__()})
         hsh = utils.get_data_hash(self.device_data)
-        code = pact.lang.mk_exp(module_and_function="sensor_store1.new-device-data", namespace="free", id=hsh,
+        code = pact.lang.mk_exp(module_and_function="sensor_store8.new-device-data", namespace="free", id=hsh,
                                 data="(read-msg 'deviceData)", device_id=self.device_id)
         data = {
             "ks": {"pred": "keys-all", "keys": [self.key_pair['publicKey']]},
@@ -82,12 +82,13 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
     json_string = msg.payload.decode("utf-8")
     try:
         json_data = json.loads(json_string)
-    except:
-        print("invalid json payload received")
-    try:
-        mqtt_class.caller(json_data)
+        if auth.validate_device_id(mqtt_class.device_id, json_data) and auth.check_auth(json_data):
+            try:
+                mqtt_class.caller(json.loads(json_data['cmd'])['payload']['exec']['data']['device_exec'])
+            except Exception as e:
+                print(e.__str__())
     except Exception as e:
-        print(e.__str__())
+        print("invalid json payload received")
 
 
 def default_caller(data):

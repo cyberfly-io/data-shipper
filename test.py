@@ -13,7 +13,4 @@ def do_something(data):
 
 
 while 1:
-    client.update_data("temperature", 35)
-    client.send_data(store_data=True)
-    time.sleep(30)
-
+    pass
