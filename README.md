@@ -1,5 +1,10 @@
 # data-shipper
 Device Python Client SDK beta
+
+# Install
+
+``pip install cyberfly-data-shipper``
+
 # Usage
 
 
