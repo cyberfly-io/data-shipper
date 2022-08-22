@@ -82,13 +82,16 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
     json_string = msg.payload.decode("utf-8")
     try:
         json_data = json.loads(json_string)
-        if auth.validate_device_id(mqtt_class.device_id, json_data) and auth.check_auth(json_data):
+        if auth.validate_device_id(mqtt_class.device_id, json_data) and auth.check_auth(json_data, "testnet04"):
             try:
                 mqtt_class.caller(json.loads(json_data['cmd'])['payload']['exec']['data']['device_exec'])
             except Exception as e:
                 print(e.__str__())
+        else:
+            print("auth failed")
     except Exception as e:
-        print("invalid json payload received")
+        print(e.__str__())
+        #print("invalid json payload received")
 
 
 def default_caller(data):

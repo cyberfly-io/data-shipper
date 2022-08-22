@@ -16,7 +16,7 @@ def default_meta(sender="not real"):
 
 
 def extract_device_id(pact_code):
-    regex = r"(?<=\(^free\.sensor_store9\.auth-device\s\\[\'\"])([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"
+    regex = r"(?<=\(free\.cyberfly_devices\.auth-device\s\")([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"
     match = re.search(regex, pact_code)
     if match:
         return True, match.group(1)

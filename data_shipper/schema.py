@@ -51,7 +51,7 @@ cmd_schema = {
               "type": "object",
               "properties": {
                 "device_exec": {
-                  "type": "string"
+                  "type": "object"
                 }
               },
               "required": [

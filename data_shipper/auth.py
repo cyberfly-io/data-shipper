@@ -9,7 +9,7 @@ import json
 def check_auth(cmd, network_id):
     res = rt.post(utils.get_api_host(network_id)+'/api/v1/local', json=cmd, headers=get_headers())
     if res.ok:
-        if res['result']['status'] == 'success':
+        if res.json()['result']['status'] == 'success':
             return True
         else:
             return False
@@ -27,6 +27,7 @@ def validate_device_id(device_id, msg):
             if d_id == device_id:
                 return True
             else:
+
                 return False
         else:
             return False
