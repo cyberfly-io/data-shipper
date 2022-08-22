@@ -10,7 +10,8 @@ setup(
     install_requires=[
         'requests',
         'paho-mqtt',
-        'pypact-lang'
+        'pypact-lang',
+        'jsonschema'
     ],
     url='https://github.com/cyberfly-io/data-shipper',
     long_description=long_description,
