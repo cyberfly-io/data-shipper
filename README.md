@@ -1,5 +1,5 @@
 # data-shipper
-Device Python Client SDK
+Device Python Client SDK beta
 # Usage
 
 

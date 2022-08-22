@@ -35,7 +35,7 @@ class CyberflyDataShipper:
         pact = Pact()
         self.device_data.update({"timestamp": time.time().__round__()})
         hsh = utils.get_data_hash(self.device_data)
-        code = pact.lang.mk_exp(module_and_function="sensor_store8.new-device-data", namespace="free", id=hsh,
+        code = pact.lang.mk_exp(module_and_function="cyberfly_devices.new-device-data", namespace="free", id=hsh,
                                 data="(read-msg 'deviceData)", device_id=self.device_id)
         data = {
             "ks": {"pred": "keys-all", "keys": [self.key_pair['publicKey']]},
