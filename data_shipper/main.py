@@ -67,9 +67,11 @@ class CyberflyDataShipper:
         return decorator
 
     def run(self, host: str, port: int) -> None:
-        self.mqtt_client.connect(
-            host, port, 60
-        )
+        try:
+            self.mqtt_client.connect(
+            host, port, 60)
+        except Exception as e:
+            print(e.__str__())
         self.mqtt_client.loop_start()
 
 
@@ -82,7 +84,7 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
     json_string = msg.payload.decode("utf-8")
     try:
         json_data = json.loads(json_string)
-        if auth.validate_device_id(mqtt_class.device_id, json_data) and auth.check_auth(json_data, "testnet04"):
+        if auth.validate_device_id(mqtt_class.device_id, json_data) and auth.check_auth(json_data, mqtt_class.network_id):
             try:
                 mqtt_class.caller(json.loads(json_data['cmd'])['payload']['exec']['data']['device_exec'])
             except Exception as e:
@@ -91,7 +93,6 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
             print("auth failed")
     except Exception as e:
         print(e.__str__())
-        #print("invalid json payload received")
 
 
 def default_caller(data):
