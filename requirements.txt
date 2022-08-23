@@ -2,3 +2,4 @@ requests
 pypact-lang
 paho-mqtt
 jsonschema
+rule_engine

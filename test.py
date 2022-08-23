@@ -13,4 +13,5 @@ def do_something(data):
 
 
 while 1:
-    pass
+    client.process_data({"temp": 36})
+    time.sleep(5)
