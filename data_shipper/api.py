@@ -14,9 +14,13 @@ def get_rules(device_id: str, network_id: str, key_pair: dict) -> list:
         "nonce": time.time().__round__() - 15,
         "keyPairs": [key_pair]
     }
-    rules = pact.fetch.local(cmd, utils.get_api_host(network_id))
-    if rules.get('result')['status'] == "success":
-        return rules.get('result')['data']
-    else:
+    try:
+        rules = pact.fetch.local(cmd, utils.get_api_host(network_id))
+        if rules.get('result')['status'] == "success":
+            return rules.get('result')['data']
+        else:
+            return []
+    except Exception as e:
+        print(e.__str__())
         return []
 

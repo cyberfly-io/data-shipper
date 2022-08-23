@@ -7,6 +7,17 @@ Device Python Client SDK beta
 
 # Usage
 
+To use this python client you need following things
+
+1. KeyPairs
+2. Device ID
+
+## Create Key pair for device
+
+``python3 -c "from pypact.pact import Pact;kp=Pact().crypto.gen_key_pair();print(kp)"``
+
+Create device in Cyberfly IO platform to obtain device id (uuid)
+
 
 ### Template 
 
