@@ -30,10 +30,12 @@ while 1:
 
 
 ### Raspberry pi LED example
-```python
 
+```python
+import time
 from data_shipper.main import CyberflyDataShipper
 import RPi.GPIO as GPIO
+
 key_pair = {"publicKey": "d04bbd8f403e583248aa461896bd7518113f89b85c98f3d9596bbfbf30df0bcb",
             "secretKey": "a0ec3175c6c80e60bc8ef18bd7b73a631c507b9f0a42c973036c7f96d21b047a"}
 
@@ -49,10 +51,13 @@ def do_something(data):
     state = data.get("state")
     GPIO.setup(pin_no, GPIO.OUT)
     if state:
-       GPIO.output(pin_no, GPIO.HIGH)
+        GPIO.output(pin_no, GPIO.HIGH)
     else:
         GPIO.output(pin_no, GPIO.LOW)
 
+
 while 1:
-    pass
+    # read data from sensor and process
+    client.process_data({"temperature": 36})
+    time.sleep(5) # time delay set as you want
 ```
