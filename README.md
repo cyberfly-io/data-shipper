@@ -26,7 +26,7 @@ from data_shipper.main import CyberflyDataShipper
 key_pair = {"publicKey": "your public key",
             "secretKey": "your secret key"}
 
-client = CyberflyDataShipper(device_id="test", key_pair=key_pair)
+client = CyberflyDataShipper(device_id="093062d0-a357-4f8a-a1cb-35f1b43c12ae", key_pair=key_pair)
 
 
 @client.on_message()
