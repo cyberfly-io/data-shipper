@@ -70,7 +70,7 @@ def make_cmd(device_id, data, network_id, key_pair):
     pact_code = '({}.{}.auth-device "{}")'.format(config.namespace, config.module, device_id)
     cmd = {
         "pactCode": pact_code,
-        "envData": {"device_exec": data},
+        "envData": {"device_exec": data.update({"expiry_time": time.time().__round__() + 10})},
         "meta": default_meta(),
         "networkId": network_id,
         "nonce": time.time().__round__() - 15,

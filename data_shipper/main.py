@@ -66,9 +66,10 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
     json_string = msg.payload.decode("utf-8")
     try:
         json_data = json.loads(json_string)
-        if auth.validate_device_id(mqtt_class.device_id, json_data) and auth.check_auth(json_data, mqtt_class.network_id):
+        device_exec = json.loads(json_data['cmd'])['payload']['exec']['data']['device_exec']
+        if auth.validate_device_id(mqtt_class.device_id, json_data) and auth.validate_expiry(device_exec) \
+                and auth.check_auth(json_data, mqtt_class.network_id):
             try:
-                device_exec = json.loads(json_data['cmd'])['payload']['exec']['data']['device_exec']
                 if device_exec.get('update_rules'):
                     mqtt_class.update_rules()
                 mqtt_class.caller(device_exec)

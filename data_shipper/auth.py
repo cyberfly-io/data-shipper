@@ -4,6 +4,7 @@ import requests as rt
 from jsonschema import validate
 from data_shipper import schema
 import json
+import time
 
 
 def check_auth(cmd, network_id):
@@ -33,4 +34,14 @@ def validate_device_id(device_id, msg):
             return False
     except Exception as e:
         print(e.__str__())
+        return False
+
+
+def validate_expiry(msg):
+    expiry_time = msg.get('expiry_time')
+    if expiry_time:
+        now = time.time().__round__()
+        return now < expiry_time
+    else:
+        print("expiry_time required")
         return False
