@@ -13,5 +13,6 @@ def do_something(data):
 
 
 while 1:
-    client.process_data({"temp": 36})
-    time.sleep(5)
+    #client.process_data({"temp": 36})
+    #time.sleep(5)
+    pass

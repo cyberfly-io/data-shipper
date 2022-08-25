@@ -23,30 +23,6 @@ def get_api_host(network_id):
         return "https://api.chainweb.com/chainweb/0.0/mainnet01/chain/{}/pact".format(config.chain_id)
 
 
-def write_rules_json(rules):
-    rules_object = json.dumps(rules, indent=4)
-    with open("rules.json", "w") as outfile:
-        outfile.write(rules_object)
-
-
-def read_rules_json() -> dict:
-    with open('rules.json', 'r') as openfile:
-        json_object = json.load(openfile)
-        return json_object
-
-
-def write_device_json(device):
-    rules_object = json.dumps(device, indent=4)
-    with open("device.json", "w") as outfile:
-        outfile.write(rules_object)
-
-
-def read_device_json() -> dict:
-    with open('device.json', 'r') as openfile:
-        json_object = json.load(openfile)
-        return json_object
-
-
 def make_rule(rule: dict) -> str:
     rule = json.loads(rule)
     variable = rule['variable']

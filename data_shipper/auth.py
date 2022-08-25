@@ -1,5 +1,4 @@
 from pypact.pact import Pact
-from data_shipper import utils
 import json
 import time
 from jsonschema import validate
@@ -8,7 +7,7 @@ from data_shipper import schema
 pact = Pact()
 
 
-def check_auth(cmd):
+def check_auth(cmd, device_info):
     try:
         validate(instance=cmd, schema=schema.pact_cmd_schema)
     except Exception as e:
@@ -18,7 +17,7 @@ def check_auth(cmd):
     pub_key = json.loads(cmd['cmd'])['signers'][0]['pubKey']
     verify = pact.crypto.verify(cmd['cmd'], pub_key, cmd['sigs'][0]['sig'])
     if verify:
-        device = utils.read_device_json()
+        device = device_info
         if len(device.keys()) > 0 and pub_key in device['guard']['keys']:
             return True
         else:

@@ -22,6 +22,8 @@ class CyberflyDataShipper:
         self.mqtt_client.on_connect = on_connect
         self.mqtt_client.on_message = on_received
         self.run(config.mqtt_broker, config.mqtt_port)
+        self.rules = []
+        self.device_info = {}
         self.update_rules()
         self.update_device()
 
@@ -43,7 +45,7 @@ class CyberflyDataShipper:
         self.mqtt_client.loop_start()
 
     def process_data(self, data: dict):
-        rules = utils.read_rules_json()
+        rules = self.rules
         if len(rules) == 0:
             self.update_rules()
         context = rule_engine.Context(default_value=None)
@@ -57,11 +59,11 @@ class CyberflyDataShipper:
 
     def update_rules(self):
         rules = api.get_rules(self.device_id, self.network_id, self.key_pair)
-        utils.write_rules_json(rules)
+        self.rules = rules
 
     def update_device(self):
         device = api.get_device(self.device_id, self.network_id, self.key_pair)
-        utils.write_device_json(device)
+        self.device_info = device
 
 
 def on_connect(client: mqtt.Client, mqtt_class: CyberflyDataShipper, __flags, received_code: int) -> None:
@@ -75,7 +77,7 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
         json_data = json.loads(json_string)
         device_exec = json.loads(json_data['cmd'])['payload']['exec']['data']['device_exec']
         if auth.validate_expiry(device_exec) \
-                and auth.check_auth(json_data):
+                and auth.check_auth(json_data, mqtt_class.device_info):
             try:
                 if device_exec.get('update_rules'):
                     mqtt_class.update_rules()
