@@ -53,7 +53,7 @@ class CyberflyDataShipper:
             rul = rule_engine.Rule(utils.make_rule(rule['rule']), context=context)
             try:
                 if rul.matches(data):
-                    utils.publish(self.mqtt_client, rule['action'], self.network_id, self.key_pair)
+                    utils.publish(self.mqtt_client, rule['action'], self.key_pair)
             except Exception as e:
                 print(e.__str__())
 
@@ -75,7 +75,7 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
     json_string = msg.payload.decode("utf-8")
     try:
         json_data = json.loads(json_string)
-        device_exec = json.loads(json_data['cmd'])['payload']['exec']['data']['device_exec']
+        device_exec = json.loads(json_data['device_exec'])
         if auth.validate_expiry(device_exec) \
                 and auth.check_auth(json_data, mqtt_class.device_info):
             try:

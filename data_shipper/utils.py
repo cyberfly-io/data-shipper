@@ -1,4 +1,3 @@
-import hashlib
 import json
 import time
 from data_shipper import config
@@ -7,12 +6,7 @@ from pypact.pact import Pact
 pact = Pact()
 
 
-def get_data_hash(data):
-    return hashlib.sha256(json.dumps(data).encode('utf-8')).hexdigest()
-
-
 def default_meta(sender="not real"):
-
     return pact.lang.mk_meta(sender, config.chain_id, 0.000001, 80000, time.time().__round__()-15, 28800)
 
 
@@ -33,11 +27,11 @@ def make_rule(rule: dict) -> str:
     return variable+' '+operator+' '+value
 
 
-def publish(client, data, network_id, key_pair):
+def publish(client, data, key_pair):
     data = json.loads(data)
     device_list = make_list(data['to_devices'])
     for device_id in device_list:
-        cmd = make_cmd(device_id, data['data'], network_id, key_pair)
+        cmd = make_cmd(data['data'], key_pair)
         try:
             client.publish(device_id, payload=json.dumps(cmd))
             print("published to device {}".format(device_id))
@@ -45,23 +39,11 @@ def publish(client, data, network_id, key_pair):
             print(e.__str__())
 
 
-def make_cmd(device_id, data, network_id, key_pair):
-    pact_code = '({}.{}.auth-device "{}")'.format(config.namespace, config.module, device_id)
-    cmd = {
-        "pactCode": pact_code,
-        "envData": {"device_exec": data.update({"expiry_time": time.time().__round__() + 10})},
-        "meta": default_meta(),
-        "networkId": network_id,
-        "nonce": time.time().__round__() - 15,
-        "keyPairs": [{"publicKey": key_pair['publicKey'], "secretKey":key_pair['secretKey'],
-                      "clist": [{'name': 'coin.GAS', 'args': []},
-                                {'name': '{}.{}.DEVICE_GUARD'.format(config.namespace, config.module),
-                                'args': [device_id]}]}]
-    }
-
-    signed_cmd = pact.api.prepare_exec_cmd(cmd['pactCode'], cmd['envData'], cmd['meta'], cmd['networkId'],
-                                           cmd['nonce'], cmd['keyPairs'])
-    return signed_cmd
+def make_cmd(data, key_pair):
+    data.update({"expiry_time": time.time().__round__() + 10})
+    signed = pact.crypto.sign(json.dumps(data), key_pair)
+    signed.update({"device_exec": json.dumps(data)})
+    return signed
 
 
 def is_number(s):
