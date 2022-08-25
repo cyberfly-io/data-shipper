@@ -23,6 +23,7 @@ class CyberflyDataShipper:
         self.mqtt_client.on_message = on_received
         self.run(config.mqtt_broker, config.mqtt_port)
         self.update_rules()
+        self.update_device()
 
     def update_data(self, key: str, value):
         self.device_data.update({key: value})
@@ -43,6 +44,8 @@ class CyberflyDataShipper:
 
     def process_data(self, data: dict):
         rules = utils.read_rules_json()
+        if len(rules) == 0:
+            self.update_rules()
         context = rule_engine.Context(default_value=None)
         for rule in rules:
             rul = rule_engine.Rule(utils.make_rule(rule['rule']), context=context)
@@ -56,6 +59,10 @@ class CyberflyDataShipper:
         rules = api.get_rules(self.device_id, self.network_id, self.key_pair)
         utils.write_rules_json(rules)
 
+    def update_device(self):
+        device = api.get_device(self.device_id, self.network_id, self.key_pair)
+        utils.write_device_json(device)
+
 
 def on_connect(client: mqtt.Client, mqtt_class: CyberflyDataShipper, __flags, received_code: int) -> None:
     print("Connected with result code " + str(received_code))
@@ -67,11 +74,14 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
     try:
         json_data = json.loads(json_string)
         device_exec = json.loads(json_data['cmd'])['payload']['exec']['data']['device_exec']
-        if auth.validate_expiry(device_exec) and auth.validate_device_id(mqtt_class.device_id, json_data) \
-                and auth.check_auth(json_data, mqtt_class.network_id):
+        if auth.validate_expiry(device_exec) \
+                and auth.check_auth(json_data):
             try:
                 if device_exec.get('update_rules'):
                     mqtt_class.update_rules()
+                if device_exec.get('update_device'):
+                    mqtt_class.update_device()
+                del device_exec['expiry_time']
                 mqtt_class.caller(device_exec)
             except Exception as e:
                 print(e.__str__())

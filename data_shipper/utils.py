@@ -1,11 +1,11 @@
 import hashlib
 import json
 import time
-import re
 from data_shipper import config
 from pypact.pact import Pact
 
 pact = Pact()
+
 
 def get_data_hash(data):
     return hashlib.sha256(json.dumps(data).encode('utf-8')).hexdigest()
@@ -14,15 +14,6 @@ def get_data_hash(data):
 def default_meta(sender="not real"):
 
     return pact.lang.mk_meta(sender, config.chain_id, 0.000001, 80000, time.time().__round__()-15, 28800)
-
-
-def extract_device_id(pact_code):
-    regex = r"(?<=\(free\.cyberfly_devices\.auth-device\s\")([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"
-    match = re.search(regex, pact_code)
-    if match:
-        return True, match.group(1)
-    else:
-        return False, "Invalid code"
 
 
 def get_api_host(network_id):
@@ -40,6 +31,18 @@ def write_rules_json(rules):
 
 def read_rules_json() -> dict:
     with open('rules.json', 'r') as openfile:
+        json_object = json.load(openfile)
+        return json_object
+
+
+def write_device_json(device):
+    rules_object = json.dumps(device, indent=4)
+    with open("device.json", "w") as outfile:
+        outfile.write(rules_object)
+
+
+def read_device_json() -> dict:
+    with open('device.json', 'r') as openfile:
         json_object = json.load(openfile)
         return json_object
 

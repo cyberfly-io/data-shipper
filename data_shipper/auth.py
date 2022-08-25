@@ -1,39 +1,29 @@
-from pypact.utils import get_headers
+from pypact.pact import Pact
 from data_shipper import utils
-import requests as rt
-from jsonschema import validate
-from data_shipper import schema
 import json
 import time
+from jsonschema import validate
+from data_shipper import schema
+
+pact = Pact()
 
 
-def check_auth(cmd, network_id):
-    res = rt.post(utils.get_api_host(network_id)+'/api/v1/local', json=cmd, headers=get_headers())
-    if res.ok:
-        if res.json()['result']['status'] == 'success':
+def check_auth(cmd):
+    try:
+        validate(instance=cmd, schema=schema.pact_cmd_schema)
+    except Exception as e:
+        print(e.__str__())
+        print("schema validation failed")
+        return False
+    pub_key = json.loads(cmd['cmd'])['signers'][0]['pubKey']
+    verify = pact.crypto.verify(cmd['cmd'], pub_key, cmd['sigs'][0]['sig'])
+    if verify:
+        device = utils.read_device_json()
+        if len(device.keys()) > 0 and pub_key in device['guard']['keys']:
             return True
         else:
             return False
     else:
-        return False
-
-
-def validate_device_id(device_id, msg):
-    try:
-        validate(instance=msg, schema=schema.pact_cmd_schema)
-        cmd = json.loads(msg['cmd'])
-        validate(instance=cmd, schema=schema.cmd_schema)
-        matched, d_id = utils.extract_device_id(cmd['payload']['exec']['code'])
-        if matched:
-            if d_id == device_id:
-                return True
-            else:
-
-                return False
-        else:
-            return False
-    except Exception as e:
-        print(e.__str__())
         return False
 
 

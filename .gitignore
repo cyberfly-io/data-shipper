@@ -100,6 +100,8 @@ venv.bak/
 # mkdocs documentation
 /site
 
+device.json
+
 # mypy
 .mypy_cache/
 rules.json
