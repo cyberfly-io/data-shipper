@@ -37,12 +37,17 @@ class CyberflyDataShipper:
         return decorator
 
     def run(self, host: str, port: int) -> None:
+        print("trying to connect")
         try:
             self.mqtt_client.connect(
             host, port, 60)
         except Exception as e:
             print(e.__str__())
-        self.mqtt_client.loop_start()
+        try:
+            self.mqtt_client.loop_start()
+        except Exception as e:
+            print(e.__str__())
+            self.run()
 
     def process_data(self, data: dict):
         rules = self.rules
@@ -56,6 +61,10 @@ class CyberflyDataShipper:
                     utils.publish(self.mqtt_client, rule['action'], self.key_pair)
             except Exception as e:
                 print(e.__str__())
+
+    def publish(self, topic, msg):
+        signed = utils.make_cmd(msg, self.key_pair)
+        utils.mqtt_publish(self.mqtt_client, topic, signed)
 
     def update_rules(self):
         rules = api.get_rules(self.device_id, self.network_id, self.key_pair)
@@ -83,8 +92,10 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
                     mqtt_class.update_rules()
                 if device_exec.get('update_device'):
                     mqtt_class.update_device()
-                del device_exec['expiry_time']
                 mqtt_class.caller(device_exec)
+                response_topic = device_exec.get('mqtt_response_topic')
+                if response_topic:
+                    utils.mqtt_publish(__client, response_topic, {"info": "success"})
             except Exception as e:
                 print(e.__str__())
         else:

@@ -33,10 +33,15 @@ def publish(client, data, key_pair):
     for device_id in device_list:
         cmd = make_cmd(data['data'], key_pair)
         try:
-            client.publish(device_id, payload=json.dumps(cmd))
+            mqtt_publish(client, device_id, cmd)
             print("published to device {}".format(device_id))
         except Exception as e:
             print(e.__str__())
+
+
+def mqtt_publish(client, topic, cmd):
+    payload = json.dumps(cmd)
+    client.publish(topic, payload)
 
 
 def make_cmd(data, key_pair):
