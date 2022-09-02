@@ -39,15 +39,13 @@ class CyberflyDataShipper:
     def run(self, host: str, port: int) -> None:
         print("trying to connect")
         try:
-            self.mqtt_client.connect(
-            host, port, 60)
+            self.mqtt_client.connect(host, port, 60)
         except Exception as e:
             print(e.__str__())
         try:
             self.mqtt_client.loop_start()
         except Exception as e:
             print(e.__str__())
-            self.run()
 
     def process_data(self, data: dict):
         rules = self.rules
@@ -85,6 +83,7 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
     try:
         json_data = json.loads(json_string)
         device_exec = json.loads(json_data['device_exec'])
+        response_topic = device_exec.get('mqtt_response_topic')
         if auth.validate_expiry(device_exec) \
                 and auth.check_auth(json_data, mqtt_class.device_info):
             try:
@@ -93,10 +92,12 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
                 if device_exec.get('update_device'):
                     mqtt_class.update_device()
                 mqtt_class.caller(device_exec)
-                response_topic = device_exec.get('mqtt_response_topic')
                 if response_topic:
-                    utils.mqtt_publish(__client, response_topic, {"info": "success"})
+                    signed = utils.make_cmd({"info": "success"}, mqtt_class.key_pair)
+                    utils.mqtt_publish(__client, response_topic, signed)
             except Exception as e:
+                signed = utils.make_cmd({"info": "error"}, mqtt_class.key_pair)
+                utils.mqtt_publish(__client, response_topic, signed)
                 print(e.__str__())
         else:
             print("auth failed")

@@ -16,7 +16,7 @@ def get_rules(device_id: str, network_id: str, key_pair: dict) -> list:
     }
     try:
         rules = pact.fetch.local(cmd, utils.get_api_host(network_id))
-        if rules.get('result')['status'] == "success":
+        if isinstance(rules, dict) and rules.get('result')['status'] == "success":
             return rules.get('result')['data']
         else:
             return []
@@ -37,9 +37,9 @@ def get_device(device_id: str, network_id: str, key_pair: dict) -> list:
         "keyPairs": [key_pair]
     }
     try:
-        rules = pact.fetch.local(cmd, utils.get_api_host(network_id))
-        if rules.get('result')['status'] == "success":
-            return rules.get('result')['data']
+        devices = pact.fetch.local(cmd, utils.get_api_host(network_id))
+        if isinstance(devices, dict) and devices.get('result')['status'] == "success":
+            return devices.get('result')['data']
         else:
             return {}
     except Exception as e:

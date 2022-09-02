@@ -13,8 +13,8 @@ GPIO.setwarnings(False)
 
 @client.on_message()
 def do_something(data):
-    pin_no = data.get("pin_no")
-    state = data.get("state")
+    pin_no = data.get("pin_no")  # you have define in widget
+    state = data.get("state")    # you have define in widget
     GPIO.setup(pin_no, GPIO.OUT)
     if state:
         GPIO.output(pin_no, GPIO.HIGH)
