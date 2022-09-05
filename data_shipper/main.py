@@ -21,11 +21,11 @@ class CyberflyDataShipper:
         self.mqtt_client.user_data_set(self)
         self.mqtt_client.on_connect = on_connect
         self.mqtt_client.on_message = on_received
-        self.run(config.mqtt_broker, config.mqtt_port)
         self.rules = []
         self.device_info = {}
-        self.update_rules()
         self.update_device()
+        self.update_rules()
+        self.run(config.mqtt_broker, config.mqtt_port)
 
     def update_data(self, key: str, value):
         self.device_data.update({key: value})
@@ -100,6 +100,7 @@ def on_received(__client: mqtt.Client, mqtt_class: CyberflyDataShipper, msg: mqt
                 utils.mqtt_publish(__client, response_topic, signed)
                 print(e.__str__())
         else:
+            print(mqtt_class.device_info)
             print("auth failed")
     except Exception as e:
         print(e.__str__())

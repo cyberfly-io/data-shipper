@@ -1,9 +1,19 @@
 import json
 import time
+import requests
 from data_shipper import config
 from pypact.pact import Pact
 
 pact = Pact()
+
+
+def is_cnx_active():
+    try:
+        requests.head("http://cyberfly.io", timeout=5)
+        return True
+    except requests.ConnectionError:
+        print("No internet")
+        return False
 
 
 def default_meta(sender="not real"):
