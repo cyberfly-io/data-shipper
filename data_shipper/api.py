@@ -1,6 +1,9 @@
 from pypact.pact import Pact
 from data_shipper import config, utils
 import time
+from bigchaindb_driver import BigchainDB
+bdb_root_url = 'http://170.187.249.181:9984/'  # Replace with your BigchainDB node URL
+bdb = BigchainDB(bdb_root_url)
 
 
 def get_rules(device_id: str, network_id: str, key_pair: dict) -> list:
@@ -53,5 +56,20 @@ def get_device(device_id: str, network_id: str, key_pair: dict) -> dict:
             print("no internet")
 
 
+def store_data(data, keypair):
+    # Create a transaction
+    tx = bdb.transactions.prepare(
+        operation='CREATE',
+        signers=keypair['publicKey'],
+        asset={'data': data}
+    )
 
-
+    # Sign and submit the transaction
+    signed_tx = bdb.transactions.fulfill(
+        tx,
+        private_keys=keypair['secretKey']
+    )
+    try:
+        bdb.transactions.send_commit(signed_tx)
+    except Exception as e:
+        print(e)

@@ -1,10 +1,10 @@
 
 from data_shipper.main import CyberflyDataShipper
 import time
-key_pair = {"publicKey": "d04bbd8f403e583248aa461896bd7518113f89b85c98f3d9596bbfbf30df0bcb",
-            "secretKey": "a0ec3175c6c80e60bc8ef18bd7b73a631c507b9f0a42c973036c7f96d21b047a"}
+key_pair = {"publicKey":"29f864a5e8eb8e926a9a933e9663556e031bdb4e40d4e365b7bac03a7bd3f265",
+            "secretKey":"7c7158f0f9b0c75a858cb04c8854d7411d889ca1a6dd00c6044258544f24bd89"}
 
-client = CyberflyDataShipper(device_id="d843cbb5-94e9-4cd7-9ea0-c8339b11b440", key_pair=key_pair, network_id="testnet04")
+client = CyberflyDataShipper(device_id="4af0969b-fefd-4f46-b2fe-3a43158ab00c", key_pair=key_pair, network_id="testnet04")
 
 import random
 
@@ -27,4 +27,6 @@ def randlatlon():
 
 
 while 1:
+    client.store_data({"temperature": random.randint(20, 40)})
+    time.sleep(3)
     pass

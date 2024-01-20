@@ -11,6 +11,8 @@ mqttc = mqtt.Client(clean_session=True)
 class CyberflyDataShipper:
     def __init__(self, device_id: str, key_pair: dict, network_id: str = "mainnet01"):
         self.key_pair = key_pair
+        self.bigchaindb_keypair = {"publicKey": utils.get_base58_key(key_pair.get('publicKey')),
+                                   "secretKey": utils.get_base58_key(key_pair.get('secretKey'))}
         self.network_id = network_id
         self.device_data = {}
         self.device_id = device_id
@@ -60,6 +62,9 @@ class CyberflyDataShipper:
             except Exception as e:
                 print(e.__str__())
 
+    def process_schedule(self, data: dict):
+        pass
+
     def publish(self, topic, msg):
         signed = utils.make_cmd(msg, self.key_pair)
         utils.mqtt_publish(self.mqtt_client, topic, signed)
@@ -71,6 +76,10 @@ class CyberflyDataShipper:
     def update_device(self):
         device = api.get_device(self.device_id, self.network_id, self.key_pair)
         self.device_info = device
+
+    def store_data(self, data):
+        signed = utils.make_cmd_to_store(data, self.key_pair)
+        api.store_data(signed, self.bigchaindb_keypair)
 
 
 def on_connect(client: mqtt.Client, mqtt_class: CyberflyDataShipper, __flags, received_code: int) -> None:

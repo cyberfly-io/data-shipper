@@ -3,6 +3,8 @@ import time
 import requests
 from data_shipper import config
 from pypact.pact import Pact
+import binascii
+import base58
 
 pact = Pact()
 
@@ -61,6 +63,13 @@ def make_cmd(data, key_pair):
     return signed
 
 
+def make_cmd_to_store(data, key_pair):
+    data.update({"timestamp": time.time()})
+    signed = pact.crypto.sign(data, key_pair)
+    signed.update({"device_data": data})
+    return signed
+
+
 def is_number(s):
     try:
         complex(s)
@@ -73,3 +82,7 @@ def make_list(s):
     if isinstance(s, list):
         return s
     return [s]
+
+
+def get_base58_key(key):
+    return base58.b58encode(binascii.unhexlify(key)).decode()
