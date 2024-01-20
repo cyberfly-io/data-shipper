@@ -3,3 +3,4 @@ pypact-lang
 paho-mqtt
 jsonschema
 rule_engine
+bigchaindb-driver==0.5.3
