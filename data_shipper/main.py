@@ -49,7 +49,7 @@ class CyberflyDataShipper:
         except Exception as e:
             print(e.__str__())
 
-    def process_data(self, data: dict):
+    def process_rules(self, data: dict):
         rules = self.rules
         if len(rules) == 0:
             self.update_rules()

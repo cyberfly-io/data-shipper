@@ -29,4 +29,3 @@ def randlatlon():
 while 1:
     client.store_data({"temperature": random.randint(20, 40)})
     time.sleep(3)
-    pass

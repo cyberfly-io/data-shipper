@@ -70,7 +70,9 @@ def do_something(data):
 
 
 while 1:
-    # read data from sensor and process
-    client.process_data({"temperature": 36})
-    time.sleep(5) # time delay set as you want
+    # read data from sensor, process rules and store data
+    data = {"temperature": 36}
+    client.process_rules(data)
+    client.store_data(data)
+    time.sleep(2) # time delay set as you want
 ```

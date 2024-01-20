@@ -1,6 +1,6 @@
 requests
 pypact-lang
 paho-mqtt
-jsonschema
 rule_engine
+base58
 bigchaindb-driver==0.5.3
